@@ -1,27 +1,26 @@
 import os, sys, re
 
-nbLine = 0
-nbFolder = 0
-nbCfile = 0
+nb_line = 0
+nb_folder = 0
+nb_cmp_file = 0
 
 #main class, scan folders and use parsingCodeFile
 def main (folder):
 	#var
-	global nbCfile
-	global nbFolder
-
+	global nb_cmp_file 
+	global nb_folder
 	cmpt=1 
 	cmd = os.popen("ls -F " + folder)
 	cmd = cmd.readlines()
 	iterator = 0
 	#add here your extension
-	listExtension = ["\.c", "\.c\*"]
-	reArray = []
+	list_extension = ["\.c", "\.c\*"]
+	re_array = []
 	
 	#re
-	for tmp in listExtension:
-		reArray.append(re.compile("([^ ]+)" + tmp + "$"))
-	reFolder = re.compile("([^ ]+)/$")
+	for tmp in list_extension:
+		re_array.append(re.compile("([^ ]+)" + tmp + "$"))
+	re_folder = re.compile("([^ ]+)/$")
 
 
 	#recuperation of all files
@@ -29,81 +28,81 @@ def main (folder):
 	#file checking
 	for line in cmd:
 		iterator = 0
-		while (iterator < len(reArray)):
-			if (reArray[iterator].match(line)):
+		while (iterator < len(re_array)):
+			if (re_array[iterator].match(line)):
 				#call parsing of code file
 				if (iterator == 0):
-					parsingCfile(folder + line[:len(line) - 1])
+					parsing_c_file(folder + line[:len(line) - 1])
 				if (iterator == 1):
-					parsingCfile(folder + line[:len(line) - 2])
-				nbCfile += 1
+					parsing_c_file(folder + line[:len(line) - 2])
+				nb_cmp_file += 1
 			iterator += 1
 			
 		
 		#folder detected, recursivity
-		if (reFolder.match(line)):
+		if (re_folder.match(line)):
 			main(folder + line[:len(line) - 2] + '/')
-			nbFolder += 1
+			nb_folder += 1
 
 #parsing for C file
-def parsingCfile (nameFile):
-	global nbLine
+def parsing_c_file (name_file):
+	global nb_line
 	#var
-	fEntry = open(nameFile, 'r')
-	fExit = open(nameFile[:len(nameFile) - 2] + ".h", 'w')
-	listFunction= ["int", "void", "char", "double"]
-	isIn = 0
-	lineTemp = ""
+	f_entry = open(name_file, 'r')
+	f_exit = open(name_file[:len(name_file) - 2] + ".h", 'w')
+	list_function= ["int", "void", "char", "double"]
+	is_in = 0
+	temp_line = ""
 	listTemp = []
 	declaration = []
-	reArray = []
+	re_array = []
 	iterator2 = 0
 
 	#re
-	for tmp in listFunction:
-		reArray.append(re.compile("^" + tmp))
+	for tmp in list_function:
+		re_array.append(re.compile("^" + tmp))
 	reInclude = re.compile("^#include+[(^ )]")
 
 	#parsing of the file
-	for line in fEntry:
+	for line in f_entry:
 		iterator = 0
-		nbLine += 1
+		nb_line += 1
 
 		#detection of include
 		if (reInclude.match(line)):
 			declaration += line
 
-		#if a reArray is ok
-		if (isIn == 1):
+		#if a re_array is ok
+		if (is_in == 1):
 			#detection of function
 			if ("{" in line):
-				for car in lineTemp:
+				for car in temp_line:
 					listTemp.append(car)
 				listTemp[len(listTemp) - 1] = ';'
 				declaration += "".join(listTemp) + '\n'
 				listTemp = []
-			isIn = 0
+			is_in = 0
 
-		#if a reArray is not ok
-		if (isIn == 0):
+		#if a re_array is not ok
+		if (is_in == 0):
 			iterator2 = 0
-			#test of reArray
-			while (iterator < len(listFunction)):
-				while (iterator2 < len(reArray)):
-					if (reArray[iterator2].match(line)):
-						isIn = 1
+			#test of re_array
+			while (iterator < len(list_function)):
+				while (iterator2 < len(re_array)):
+					if (re_array[iterator2].match(line)):
+						is_in = 1
 					iterator2 += 1
 				iterator += 1
 
-		lineTemp = line
+		temp_line = line
 
 	for line in declaration:
-		fExit.write(line)
+		f_exit.write(line)
 
 
 
-	fEntry.close()
-	fExit.close()
+	f_entry.close()
+	f_exit.close()
 
 main(sys.argv[1])
-print (str(nbFolder) + " folder(s), " + str(nbCfile) + " C file and " + str(nbLine) + " line(s)")
+print (str(nb_folder) + " folder(s), " + str(nb_cmp_file) + " C file and " + str(nb_line) + " line(s)")

@@ -106,4 +106,4 @@ def parsingCfile (nameFile):
 	fExit.close()
 
 main(sys.argv[1])
-print (str(nbFolder) + " folder(s), " + str(nbCfile) + " C file and " + str(nbLine) + " line(s)")
+print ("%s folder(s), %s C file and %s line(s)" % (nbFolder,nbCfile,nbLine))

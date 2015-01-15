@@ -53,7 +53,7 @@ def parsing_c_file (name_file):
 	list_function= ["int", "void", "char", "double"]
 	is_in = 0
 	temp_line = ""
-	listTemp = []
+	temp_list = []
 	declaration = []
 	re_array = []
 	iterator2 = 0
@@ -61,7 +61,7 @@ def parsing_c_file (name_file):
 	#re
 	for tmp in list_function:
 		re_array.append(re.compile("^" + tmp))
-	reInclude = re.compile("^#include+[(^ )]")
+	re_include = re.compile("^#include+[(^ )]")
 
 	#parsing of the file
 	for line in f_entry:
@@ -69,7 +69,7 @@ def parsing_c_file (name_file):
 		nb_line += 1
 
 		#detection of include
-		if (reInclude.match(line)):
+		if (re_include.match(line)):
 			declaration += line
 
 		#if a re_array is ok
@@ -77,10 +77,10 @@ def parsing_c_file (name_file):
 			#detection of function
 			if ("{" in line):
 				for car in temp_line:
-					listTemp.append(car)
-				listTemp[len(listTemp) - 1] = ';'
-				declaration += "".join(listTemp) + '\n'
-				listTemp = []
+					temp_list.append(car)
+				temp_list[len(temp_list) - 1] = ';'
+				declaration += "".join(temp_list) + '\n'
+				temp_list = []
 			is_in = 0
 
 		#if a re_array is not ok

@@ -3,6 +3,30 @@ import os, sys, re
 nbLine = 0
 nbFolder = 0
 nbCfile = 0
+header_folder = 0
+
+#read_config function
+def read_config():
+
+	#var
+	re_array = []
+
+	#list of possible args in the config file
+	args = ["header_folder = "]
+	for temp in args:
+		re_array.append(re.compile("^" + temp))
+
+	#we try to open the config file
+	try:
+		config_file = open(".ducking-robot.cfg", "r")
+		
+		for line in config_file:
+			for temp_re in re_array:
+				if temp_re.match(line):
+					print(line)
+			
+	except (IOError, OSError) as e:
+		print("Error : %s" % (e))
 
 #main class, scan folders and use parsingCodeFile
 def main (folder):
@@ -104,6 +128,6 @@ def parsingCfile (nameFile):
 
 	fEntry.close()
 	fExit.close()
-
-main(sys.argv[1])
-print ("%s folder(s), %s C file and %s line(s)" % (nbFolder,nbCfile,nbLine))
+read_config()
+#main(sys.argv[1])
+#print ("%s folder(s), %s C file and %s line(s)" % (nbFolder,nbCfile,nbLine))

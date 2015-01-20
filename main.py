@@ -3,27 +3,24 @@ import os, sys, re
 nbLine = 0
 nbFolder = 0
 nbCfile = 0
-header_folder = 0
+header_folder = ""
+test = ""
 
 #read_config function
 def read_config():
 
 	#var
-	re_array = []
-
-	#list of possible args in the config file
-	args = ["header_folder = "]
-	for temp in args:
-		re_array.append(re.compile("^" + temp))
+	re_header_folder = re.compile("^header_folder = ")
 
 	#we try to open the config file
 	try:
 		config_file = open(".ducking-robot.cfg", "r")
 		
 		for line in config_file:
-			for temp_re in re_array:
-				if temp_re.match(line):
-					print(line)
+			if re_header_folder.match(line):
+				header_folder = line.split("= ")[1]
+
+				
 			
 	except (IOError, OSError) as e:
 		print("Error : %s" % (e))
@@ -74,7 +71,7 @@ def parsingCfile (nameFile):
 	global nbLine
 	#var
 	fEntry = open(nameFile, 'r')
-	fExit = open(nameFile[:len(nameFile) - 2] + ".h", 'w')
+	fExit = open(header_folder + nameFile[:len(nameFile) - 2] + ".h", 'w')
 	listFunction= ["int", "void", "char", "double"]
 	isIn = 0
 	lineTemp = ""

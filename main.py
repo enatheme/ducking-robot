@@ -3,14 +3,35 @@ import os, sys, re
 nbLine = 0
 nbFolder = 0
 nbCfile = 0
+target_folder = ""
 header_folder = ""
-test = ""
+
+
+#get arguments
+def read_args(argv):
+	#var
+	number_args = len(argv) - 1
+	ret = 0
+
+	#we have arguments
+	if (number_args > 0):
+		ret = 1
+		target_folder = argv[1]
+		print("Target folder = %s" % (target_folder))
+		if(number_args > 1):
+			header_folder = argv[2]
+			print("Header folder = %s" % (header_folder))
+	return(ret)
+		
 
 #read_config function
 def read_config():
 
 	#var
+	global header_folder
+	global target_folder
 	re_header_folder = re.compile("^header_folder = ")
+	re_target_folder = re.compile("^target_folder = ")
 
 	#we try to open the config file
 	try:
@@ -18,15 +39,23 @@ def read_config():
 		
 		for line in config_file:
 			if re_header_folder.match(line):
-				header_folder = line.split("= ")[1]
+				temp = line.split("= ")[1]
+				header_folder = temp[:len(temp) - 1]
+				print("Header folder = %s" % (header_folder))
+			if re_target_folder.match(line):
+				temp = line.split("= ")[1]
+				target_folder = temp[:len(temp) - 1]
+				print("Target folder = %s" % (target_folder))
+		return(1)
 
-				
+		config_file.close()
 			
 	except (IOError, OSError) as e:
 		print("Error : %s" % (e))
+	return(0)
 
 #main class, scan folders and use parsingCodeFile
-def main (folder):
+def main(folder):
 	#var
 	global nbCfile
 	global nbFolder
@@ -71,7 +100,12 @@ def parsingCfile (nameFile):
 	global nbLine
 	#var
 	fEntry = open(nameFile, 'r')
-	fExit = open(header_folder + nameFile[:len(nameFile) - 2] + ".h", 'w')
+	name_exit = (nameFile[:len(nameFile) - 2] + ".h")
+	#if we have a header folder:
+	if(header_folder != ""):
+		temp_name_exit = name_exit.split("/")
+		name_exit = header_folder + temp_name_exit[len(temp_name_exit) - 1]
+	fExit = open(name_exit, 'w')
 	listFunction= ["int", "void", "char", "double"]
 	isIn = 0
 	lineTemp = ""
@@ -125,6 +159,19 @@ def parsingCfile (nameFile):
 
 	fEntry.close()
 	fExit.close()
-read_config()
-#main(sys.argv[1])
-#print ("%s folder(s), %s C file and %s line(s)" % (nbFolder,nbCfile,nbLine))
+
+got_config = 0
+if(read_config() == 0):
+	print("No config file found, read arguments")
+	#we don't have a config file, so we read argument line
+	if(read_args(sys.argv) == 0):
+		#no args line, print the error message
+		print("Usage: python main.py target_folder [header_folder]")
+	else:
+		got_config = 1
+else:
+	got_config = 1
+
+if(got_config == 1):
+	main(target_folder)
+	print ("%s folder(s), %s C file and %s line(s)" % (nbFolder,nbCfile,nbLine))
